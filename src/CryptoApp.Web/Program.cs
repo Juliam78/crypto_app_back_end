@@ -1,6 +1,7 @@
 using CryptoAppBackEnd.Application.Ports;
 using CryptoAppBackEnd.Application.UseCases;
 using CryptoAppBackEnd.Infraestructure.Adapters;
+using CryptoAppBackEnd.Infraestructure.Market;
 using CryptoAppBackEnd.Infraestructure.Persistence;
 using CryptoAppBackEnd.Infraestructure.Security;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,11 @@ builder.Services.AddScoped<IMovementRepository, MovementRepository>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
+// Mercado: proxy a CoinGecko (HttpClient tipado) + caché en BD.
+builder.Services.AddHttpClient<IMarketDataProvider, CoinGeckoClient>(client =>
+    client.Timeout = TimeSpan.FromSeconds(30));
+builder.Services.AddScoped<IMarketCache, MarketCacheRepository>();
+
 // Casos de uso (capa de aplicación)
 builder.Services.AddScoped<PersonUseCase>();
 builder.Services.AddScoped<CryptoCurrencyUseCase>();
@@ -55,6 +61,7 @@ builder.Services.AddScoped<PortfolioUseCase>();
 builder.Services.AddScoped<PortfolioAssetUseCase>();
 builder.Services.AddScoped<MovementUseCase>();
 builder.Services.AddScoped<AuthUseCase>();
+builder.Services.AddScoped<MarketUseCase>();
 
 var app = builder.Build();
 
