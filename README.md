@@ -15,12 +15,18 @@ adaptadores)** y persistencia con **Entity Framework Core** sobre **PostgreSQL**
 Exponer, mediante una API REST, toda la lógica de negocio de la aplicación:
 
 - **Autenticación y usuarios** — registro, inicio de sesión (emisión de token de sesión),
-  gestión de perfil, roles (`admin` / `user`) y avatares.
+  gestión de perfil, roles (`admin` / `employee` / `user`) y avatares.
 - **Mercado** — precios de criptomonedas (proxy hacia CoinGecko con caché, para no agotar el
   límite de la API gratuita y poder responder aunque el proveedor falle).
 - **Trading** — registro de compras/ventas, cálculo de cantidad y del PnL realizado.
 - **Portafolios** — posiciones derivadas de los movimientos del usuario.
 - **Administración** — registro y consulta de errores de la aplicación.
+- **Academia** — lecciones educativas y señales de compra/venta por moneda; el personal
+  (`admin`/`employee`) las crea, edita y publica, y los usuarios consultan las publicadas.
+- **Asistente IA ("Cripto")** — mascota conversacional que responde preguntas y sugiere
+  comprar/vender, **fundamentada en datos reales** (mercado, portafolio del usuario y señales
+  publicadas). Usa un LLM configurable y gratuito (Ollama local u otro endpoint compatible con
+  OpenAI), con una **respuesta de respaldo determinista** si el LLM no está disponible.
 
 El objetivo didáctico es demostrar una **separación estricta de capas** donde el dominio es
 C# puro, independiente de frameworks de persistencia o web.
@@ -64,21 +70,24 @@ crypto_app_back_end/
 ├── CryptoApp.sln
 ├── src/
 │   ├── CryptoApp.Domain/
-│   │   ├── Entities/            # Person, CryptoCurrency, Portfolio, PortfolioAsset, Movement
+│   │   ├── Entities/            # Person, CryptoCurrency, Portfolio, PortfolioAsset,
+│   │   │                        #   Movement, AppError (errores), Lesson (academia)
 │   │   └── Shared/              # Helpers de validación
 │   ├── CryptoApp.Application/
-│   │   ├── Ports/               # Interfaces de salida (IPersonRepository, IMarketDataPort, ...)
-│   │   └── UseCases/            # PersonUseCase, MovementUseCase, ...
+│   │   ├── Ports/               # Interfaces de salida (IPersonRepository, IMarketDataProvider,
+│   │   │                        #   ITokenService, IPasswordHasher, ILessonRepository,
+│   │   │                        #   IAssistantProvider, ...)
+│   │   └── UseCases/            # PersonUseCase, MovementUseCase, AuthUseCase, MarketUseCase,
+│   │                            #   LessonUseCase, AssistantUseCase, ...
 │   ├── CryptoApp.Infrastructure/
-│   │   └── Persistence/
-│   │       ├── AppDbContext.cs
-│   │       ├── Models/          # *DbModel (modelos de persistencia)
-│   │       ├── Configurations/  # IEntityTypeConfiguration por modelo
-│   │       ├── Mappers/         # Dominio ↔ DbModel
-│   │       ├── Migrations/      # Historial gestionado por dotnet ef
-│   │       └── Adapters/        # Implementaciones de los puertos
+│   │   └── Infraestructure/
+│   │       ├── Persistence/     # AppDbContext, Models (*DbModel), Configurations, Mappers, Migrations
+│   │       ├── Adapters/        # Implementaciones de los puertos (repositorios EF)
+│   │       ├── Security/        # PasswordHasher (SHA-256), TokenService (HMAC)
+│   │       ├── Market/          # CoinGeckoClient + caché de precios
+│   │       └── Assistant/       # OpenAiCompatibleAssistantClient (LLM del asistente)
 │   └── CryptoApp.Web/
-│       ├── Controllers/
+│       ├── Controllers/         # Auth, Users, Market, Trades, Movements, Errors, Lessons, Assistant, ...
 │       ├── Contracts/           # DTOs request/response
 │       ├── Program.cs           # DI + pipeline HTTP
 │       └── appsettings.json
@@ -145,11 +154,14 @@ La API y su documentación Swagger quedan disponibles en `http://localhost:5243`
 | Mercado | `GET /api/market/coins` · `GET /api/market/coins/{id}` | Listado y detalle de criptomonedas |
 | Trading | `POST /api/trades` · `GET /api/movements` | Compras/ventas y movimientos |
 | Admin | `GET /api/errors` · `POST /api/errors` | Registro y consulta de errores |
+| Academia | `GET /api/lessons` · `POST/PUT/DELETE /api/lessons/{id}` · `POST /api/lessons/{id}/publish` | Lecciones/señales; lectura pública de lo publicado, gestión solo para staff (token) |
+| Asistente | `POST /api/assistant/ask` | Pregunta a la mascota IA "Cripto" (respuesta fundamentada + descargo educativo) |
 
 ### Convenciones de contrato (DTOs)
 - `id` se serializa como **string**.
-- Rol: `'A'` en BD ↔ `"admin"`, resto ↔ `"user"`.
+- Rol: `'A'` ↔ `"admin"`, `'E'` ↔ `"employee"`, resto ↔ `"user"`.
 - Tipo de movimiento: `'B'` ↔ `"buy"`, `'S'` ↔ `"sell"`.
+- Academia: `kind` `'L'` ↔ `"lesson"`, `'S'` ↔ `"signal"`; `recommendation` `'B'/'S'/'H'` ↔ `"buy"/"sell"/"hold"`.
 - Fechas en **ISO 8601 (UTC)**.
 
 ---
@@ -159,10 +171,33 @@ La API y su documentación Swagger quedan disponibles en `http://localhost:5243`
 | Email | Password | Rol |
 |-------|----------|-----|
 | `admin@crypto.edu` | `admin123` | admin |
+| `empleado@crypto.edu` | `empleado123` | employee |
 | `jane.smith@example.com` | `secret123` | user |
 | `john.doe@example.com` | `secret123` | user |
 
-> Solo `admin@crypto.edu` puede cambiar roles (validado en el backend).
+> Solo `admin@crypto.edu` puede cambiar roles (validado en el backend). El personal
+> (`admin`/`employee`) puede gestionar la Academia.
+
+---
+
+## 🤖 Asistente IA ("Cripto") — configuración (gratis)
+
+El asistente llama a un endpoint **compatible con la API de OpenAI** (`/chat/completions`),
+configurable en la sección `Assistant` de la configuración:
+
+```json
+"Assistant": { "BaseUrl": "...", "Model": "...", "ApiKey": "..." }
+```
+
+- **Opción A — Ollama local (sin clave, sin costo):** instala [Ollama](https://ollama.com),
+  `ollama pull llama3.2`, y deja `BaseUrl: "http://localhost:11434/v1"`, `Model: "llama3.2"`.
+- **Opción B — proveedor gratuito con clave (p. ej. Google Gemini):** `BaseUrl`
+  `https://generativelanguage.googleapis.com/v1beta/openai`, `Model` `gemini-2.5-flash`,
+  y la clave en `ApiKey`.
+
+> ⚠️ **No pongas claves en `appsettings.json`** (se versiona). Colócalas en
+> `src/CryptoApp.Web/appsettings.Development.json`, que está en `.gitignore`. Si el LLM no
+> responde, el endpoint cae a una **respuesta de respaldo** con datos reales (la app nunca falla).
 
 ---
 
