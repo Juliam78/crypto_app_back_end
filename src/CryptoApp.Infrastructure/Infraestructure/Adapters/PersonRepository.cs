@@ -27,6 +27,14 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
             return row is null ? null! : PersonMapper.ToDomain(row);
         }
 
+        public async Task<Person?> GetPersonByEmailAsync(string email)
+        {
+            var row = await _context.Persons
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.email == email);
+            return row is null ? null : PersonMapper.ToDomain(row);
+        }
+
         public async Task CreatePersonAsync(Person person)
         {
             await _context.Persons.AddAsync(PersonMapper.ToDb(person));

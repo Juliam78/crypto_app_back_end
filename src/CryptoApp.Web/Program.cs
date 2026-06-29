@@ -2,6 +2,7 @@ using CryptoAppBackEnd.Application.Ports;
 using CryptoAppBackEnd.Application.UseCases;
 using CryptoAppBackEnd.Infraestructure.Adapters;
 using CryptoAppBackEnd.Infraestructure.Persistence;
+using CryptoAppBackEnd.Infraestructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -43,12 +44,17 @@ builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 builder.Services.AddScoped<IPortfolioAssetRepository, PortfolioAssetRepository>();
 builder.Services.AddScoped<IMovementRepository, MovementRepository>();
 
+// Seguridad: hashing de contraseñas y emisión/validación de tokens de sesión.
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
+
 // Casos de uso (capa de aplicación)
 builder.Services.AddScoped<PersonUseCase>();
 builder.Services.AddScoped<CryptoCurrencyUseCase>();
 builder.Services.AddScoped<PortfolioUseCase>();
 builder.Services.AddScoped<PortfolioAssetUseCase>();
 builder.Services.AddScoped<MovementUseCase>();
+builder.Services.AddScoped<AuthUseCase>();
 
 var app = builder.Build();
 
