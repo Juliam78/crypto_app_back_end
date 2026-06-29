@@ -39,10 +39,13 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
             return row is null ? null : LessonMapper.ToDomain(row);
         }
 
-        public async Task CreateAsync(Lesson lesson)
+        public async Task<Lesson> CreateAsync(Lesson lesson)
         {
-            await _context.Lessons.AddAsync(LessonMapper.ToDb(lesson));
+            var db = LessonMapper.ToDb(lesson);
+            await _context.Lessons.AddAsync(db);
             await _context.SaveChangesAsync();
+            // db.id ya viene poblado por la BD; rehidratamos para devolver el id real.
+            return LessonMapper.ToDomain(db);
         }
 
         public async Task UpdateAsync(Lesson lesson)

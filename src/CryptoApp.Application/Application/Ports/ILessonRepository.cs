@@ -13,7 +13,8 @@ namespace CryptoAppBackEnd.Application.Ports
         /// <summary>Una lección por id, o null si no existe.</summary>
         Task<Lesson?> GetByIdAsync(int id);
 
-        Task CreateAsync(Lesson lesson);
+        /// <summary>Persiste la lección y devuelve la entidad con el id generado por la BD.</summary>
+        Task<Lesson> CreateAsync(Lesson lesson);
 
         Task UpdateAsync(Lesson lesson);
 

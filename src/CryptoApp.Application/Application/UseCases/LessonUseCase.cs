@@ -47,8 +47,7 @@ namespace CryptoAppBackEnd.Application.UseCases
                 req.CoinSymbol,
                 req.Recommendation);
 
-            await _lessonPort.CreateAsync(lesson);
-            return lesson;
+            return await _lessonPort.CreateAsync(lesson);
         }
 
         /// <summary>Actualiza el contenido. Devuelve null si la lección no existe.</summary>
