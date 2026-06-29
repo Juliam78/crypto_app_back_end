@@ -21,6 +21,12 @@ namespace CryptoApp.Web.Contracts
 
     public record UpdatePersonRequest(string Name, string Email, string Role, bool Status);
 
+    /// <summary>
+    /// Actualización de perfil desde el frontend (no cambia rol ni estado).
+    /// password y avatar_url son opcionales.
+    /// </summary>
+    public record UpdateProfileRequest(string Name, string Email, string? Password, string? avatar_url);
+
     public record PersonResponse(
         string Id,
         string Name,

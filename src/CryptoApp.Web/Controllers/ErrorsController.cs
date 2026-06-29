@@ -26,8 +26,8 @@ namespace CryptoApp.Web.Controllers
                 request.route,
                 request.message,
                 request.stack,
-                request.userId,
-                request.userEmail);
+                request.user_id,
+                request.user_email);
 
             var response = ErrorResponse.From(error);
             return CreatedAtAction(nameof(GetAll), new { }, response);

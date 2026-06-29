@@ -10,8 +10,8 @@ namespace CryptoApp.Web.Contracts
         string route,
         string message,
         string? stack,
-        string? userId,
-        string? userEmail);
+        string? user_id,
+        string? user_email);
 
     /// <summary>
     /// DTO con el shape que espera el frontend (shared/types.ts -> AppErrorLog).

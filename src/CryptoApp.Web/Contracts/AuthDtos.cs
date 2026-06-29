@@ -8,7 +8,8 @@ namespace CryptoApp.Web.Contracts
     public record AuthResponse(PersonResponse User, string Token);
 
     /// <summary>
-    /// Cambio de rol. El frontend envía el id del actor y el nuevo rol ("admin"/"user").
+    /// Cambio de rol. El frontend envía el id del actor (clave snake_case `actor_user_id`)
+    /// y el nuevo rol ("admin"/"user").
     /// </summary>
-    public record SetRoleRequest(string ActorUserId, string Role);
+    public record SetRoleRequest(string actor_user_id, string Role);
 }
