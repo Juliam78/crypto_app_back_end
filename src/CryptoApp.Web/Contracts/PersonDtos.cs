@@ -28,7 +28,8 @@ namespace CryptoApp.Web.Contracts
         string Role,
         bool Status,
         string CreatedAt,
-        string UpdatedAt)
+        string UpdatedAt,
+        string? avatar_url)
     {
         public static PersonResponse From(Person person) => new(
             person.id.ToString(),
@@ -37,6 +38,7 @@ namespace CryptoApp.Web.Contracts
             RoleMapping.ToContract(person.role),
             person.status,
             person.created_at.ToString("o"),
-            person.updated_at.ToString("o"));
+            person.updated_at.ToString("o"),
+            person.avatar_url);
     }
 }

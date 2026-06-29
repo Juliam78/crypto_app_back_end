@@ -14,7 +14,8 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Mappers
             role = domain.role,
             status = domain.status,
             created_at = domain.created_at,
-            updated_at = domain.updated_at
+            updated_at = domain.updated_at,
+            avatar_url = domain.avatar_url
         };
 
         public static Person ToDomain(PersonDbModel db) => Person.FromPersistence(
@@ -25,6 +26,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Mappers
             db.role,
             db.status,
             db.created_at,
-            db.updated_at);
+            db.updated_at,
+            db.avatar_url);
     }
 }

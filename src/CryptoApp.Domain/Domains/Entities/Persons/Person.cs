@@ -10,6 +10,7 @@ namespace CryptoAppBackEnd.Domains.Entities.Persons
         public string password_hash { get; private set; } = string.Empty;
         public char role { get; private set; }
         public bool status { get; private set; }
+        public string? avatar_url { get; private set; }
         public DateTime created_at { get; private set; } = DateTime.UtcNow;
         public DateTime updated_at { get; private set; } = DateTime.UtcNow;
 
@@ -43,7 +44,8 @@ namespace CryptoAppBackEnd.Domains.Entities.Persons
             char role,
             bool status,
             DateTime created_at,
-            DateTime updated_at)
+            DateTime updated_at,
+            string? avatar_url = null)
         {
             return new Person
             {
@@ -54,7 +56,8 @@ namespace CryptoAppBackEnd.Domains.Entities.Persons
                 role = role,
                 status = status,
                 created_at = created_at,
-                updated_at = updated_at
+                updated_at = updated_at,
+                avatar_url = avatar_url
             };
         }
 
@@ -77,6 +80,13 @@ namespace CryptoAppBackEnd.Domains.Entities.Persons
         {
             Helpers.ValidateFields((nameof(role), role));
             this.role = role;
+            Touch();
+        }
+
+        public void SetAvatarUrl(string url)
+        {
+            Helpers.ValidateFields((nameof(url), url));
+            this.avatar_url = url;
             Touch();
         }
 

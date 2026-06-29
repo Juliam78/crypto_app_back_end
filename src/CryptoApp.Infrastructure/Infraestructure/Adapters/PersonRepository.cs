@@ -54,6 +54,7 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
             existing.password_hash = person.password_hash;
             existing.role = person.role;
             existing.status = person.status;
+            existing.avatar_url = person.avatar_url;
             existing.updated_at = person.updated_at;
 
             await _context.SaveChangesAsync();

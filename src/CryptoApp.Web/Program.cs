@@ -44,6 +44,7 @@ builder.Services.AddScoped<ICryptoCurrencyRepository, CryptoCurrencyRepository>(
 builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 builder.Services.AddScoped<IPortfolioAssetRepository, PortfolioAssetRepository>();
 builder.Services.AddScoped<IMovementRepository, MovementRepository>();
+builder.Services.AddScoped<IAppErrorRepository, AppErrorRepository>();
 
 // Seguridad: hashing de contraseñas y emisión/validación de tokens de sesión.
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -60,6 +61,7 @@ builder.Services.AddScoped<CryptoCurrencyUseCase>();
 builder.Services.AddScoped<PortfolioUseCase>();
 builder.Services.AddScoped<PortfolioAssetUseCase>();
 builder.Services.AddScoped<MovementUseCase>();
+builder.Services.AddScoped<ErrorUseCase>();
 builder.Services.AddScoped<AuthUseCase>();
 builder.Services.AddScoped<MarketUseCase>();
 
@@ -86,6 +88,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Sirve archivos estáticos desde wwwroot (p. ej. /avatars/{archivo}).
+app.UseStaticFiles();
 
 app.UseCors(CorsPolicy);
 

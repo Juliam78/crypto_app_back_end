@@ -19,6 +19,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Configurations
             builder.Property(p => p.status).IsRequired();
             builder.Property(p => p.created_at).IsRequired();
             builder.Property(p => p.updated_at).IsRequired();
+            builder.Property(p => p.avatar_url).HasMaxLength(500);
 
             builder.HasIndex(p => p.email).IsUnique();
         }
