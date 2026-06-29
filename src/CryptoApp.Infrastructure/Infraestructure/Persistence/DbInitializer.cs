@@ -143,14 +143,17 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
             };
             context.PortfolioAssets.AddRange(janeBtc, janeEth, carlAda);
 
-            // Movimientos
+            // Movimientos (desnormalizados: sin FKs; guardan ids/nombres como datos planos).
             var janeBtcMov = new MovementDbModel
             {
-                person_id = jane.id,
-                portfolio_id = janePortfolio.id,
-                crypto_id = btc.id,
+                user_id = jane.id.ToString(),
+                user_name = jane.name,
+                coin_id = "bitcoin",
+                coin_name = btc.name,
+                coin_symbol = btc.symbol,
                 type = 'B',
                 quantity = 0.35m,
+                currency = "usd",
                 price = 48000m,
                 total = 16800m,
                 realized_pnl = 0m,
@@ -158,11 +161,14 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
             };
             var janeEthMov = new MovementDbModel
             {
-                person_id = jane.id,
-                portfolio_id = janePortfolio.id,
-                crypto_id = eth.id,
+                user_id = jane.id.ToString(),
+                user_name = jane.name,
+                coin_id = "ethereum",
+                coin_name = eth.name,
+                coin_symbol = eth.symbol,
                 type = 'B',
                 quantity = 2.25m,
+                currency = "usd",
                 price = 3900m,
                 total = 8775m,
                 realized_pnl = 0m,
@@ -170,11 +176,14 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
             };
             var carlAdaMov = new MovementDbModel
             {
-                person_id = carl.id,
-                portfolio_id = carlPortfolio.id,
-                crypto_id = ada.id,
+                user_id = carl.id.ToString(),
+                user_name = carl.name,
+                coin_id = "cardano",
+                coin_name = ada.name,
+                coin_symbol = ada.symbol,
                 type = 'B',
                 quantity = 1500m,
+                currency = "usd",
                 price = 2.1m,
                 total = 3150m,
                 realized_pnl = 0m,

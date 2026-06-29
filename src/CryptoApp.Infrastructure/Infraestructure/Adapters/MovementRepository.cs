@@ -15,16 +15,30 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
             _context = context;
         }
 
-        public async Task<IEnumerable<Movement>> GetMovementsAsync()
+        public async Task<IEnumerable<Movement>> GetAllAsync()
         {
-            var rows = await _context.Movements.AsNoTracking().ToListAsync();
+            var rows = await _context.Movements.AsNoTracking()
+                .OrderByDescending(m => m.created_at)
+                .ToListAsync();
             return rows.Select(MovementMapper.ToDomain).ToList();
         }
 
-        public async Task<Movement> GetMovementByIdAsync(int id)
+        public async Task<IEnumerable<Movement>> GetByUserAsync(string userId)
         {
-            var row = await _context.Movements.FindAsync(id);
-            return row is null ? null! : MovementMapper.ToDomain(row);
+            var rows = await _context.Movements.AsNoTracking()
+                .Where(m => m.user_id == userId)
+                .OrderByDescending(m => m.created_at)
+                .ToListAsync();
+            return rows.Select(MovementMapper.ToDomain).ToList();
+        }
+
+        public async Task<IEnumerable<Movement>> GetPositionHistoryAsync(string userId, string coinId, string currency)
+        {
+            var rows = await _context.Movements.AsNoTracking()
+                .Where(m => m.user_id == userId && m.coin_id == coinId && m.currency == currency)
+                .OrderBy(m => m.created_at)
+                .ToListAsync();
+            return rows.Select(MovementMapper.ToDomain).ToList();
         }
 
         public async Task CreateMovementAsync(Movement movement)

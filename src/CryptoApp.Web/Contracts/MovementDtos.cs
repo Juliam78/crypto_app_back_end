@@ -3,49 +3,49 @@ using CryptoAppBackEnd.Domains.Entities.Movements;
 namespace CryptoApp.Web.Contracts
 {
     /// <summary>
-    /// Mapeo de tipo de movimiento entre el dominio (char) y el contrato del frontend (string).
-    /// 'B' &lt;-&gt; "buy"; 'S' &lt;-&gt; "sell".
+    /// Solicitud de operación enviada por el frontend (shape idéntico al microservicio).
+    /// type: "buy" | "sell".
     /// </summary>
-    public static class MovementTypeMapping
-    {
-        public const char BuyChar = 'B';
-        public const char SellChar = 'S';
+    public record TradeRequest(
+        string userId,
+        string? userName,
+        string coinId,
+        string coinName,
+        string coinSymbol,
+        string type,
+        decimal amountUsd,
+        decimal priceUsd,
+        string? currency);
 
-        public static string ToContract(char type) => type == SellChar ? "sell" : "buy";
-
-        public static char ToDomain(string? type) =>
-            string.Equals(type, "sell", StringComparison.OrdinalIgnoreCase) ? SellChar : BuyChar;
-    }
-
-    public record CreateMovementRequest(
-        int PersonId,
-        int PortfolioId,
-        int CryptoId,
-        string Type,
-        decimal Quantity,
-        decimal Price,
-        decimal Total,
-        decimal RealizedPnl);
-
+    /// <summary>
+    /// DTO con el shape exacto que espera el frontend (shared/types.ts -> Movement).
+    /// id se serializa como string; type como "buy"/"sell"; created_at en ISO 8601.
+    /// </summary>
     public record MovementResponse(
-        string Id,
-        string PersonId,
-        string PortfolioId,
-        string CryptoId,
-        string Type,
-        decimal Quantity,
-        decimal Price,
-        decimal Total,
-        decimal RealizedPnl,
-        string CreatedAt)
+        string id,
+        string user_id,
+        string user_name,
+        string coin_id,
+        string coin_name,
+        string coin_symbol,
+        string type,
+        decimal quantity,
+        string currency,
+        decimal price,
+        decimal total,
+        decimal realized_pnl,
+        string created_at)
     {
         public static MovementResponse From(Movement m) => new(
             m.id.ToString(),
-            m.person_id.ToString(),
-            m.portfolio_id.ToString(),
-            m.crypto_id.ToString(),
-            MovementTypeMapping.ToContract(m.type),
+            m.user_id,
+            m.user_name,
+            m.coin_id,
+            m.coin_name,
+            m.coin_symbol,
+            m.type == 'S' ? "sell" : "buy",
             m.quantity,
+            m.currency,
             m.price,
             m.total,
             m.realized_pnl,
