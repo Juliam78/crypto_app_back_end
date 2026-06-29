@@ -26,8 +26,6 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
 
         public async Task CreatePersonAsync(Person person)
         {
-            person.created_at = DateTime.UtcNow;
-            person.updated_at = DateTime.UtcNow;
             await _context.Persons.AddAsync(person);
             await _context.SaveChangesAsync();
         }
@@ -40,12 +38,8 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
                 return;
             }
 
-            existing.name = person.name;
-            existing.email = person.email;
-            existing.password_hash = person.password_hash;
-            existing.role = person.role;
-            existing.status = person.status;
-            existing.updated_at = DateTime.UtcNow;
+            existing.UpdateProfile(person.name, person.email, person.role, person.status);
+            existing.SetPasswordHash(person.password_hash);
 
             await _context.SaveChangesAsync();
         }

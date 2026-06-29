@@ -4,27 +4,27 @@ namespace CryptoAppBackEnd.Domains.Entities.CryptoCurrencies
 {
     public class CryptoCurrency
     {
-        public int id { get; set; }
-        public string symbol { get; set; } = string.Empty;
-        public string name { get; set; } = string.Empty;
-        public string image_url { get; set; } = string.Empty;
-        public decimal current_price { get; set; }
-        public decimal price_change_24h { get; set; }
-        public decimal market_cap { get; set; }
-        public DateTime last_price_update { get; set; } = DateTime.UtcNow;
-        public DateTime created_at { get; set; } = DateTime.UtcNow;
-        public DateTime updated_at { get; set; } = DateTime.UtcNow;
+        public int id { get; private set; }
+        public string symbol { get; private set; } = string.Empty;
+        public string name { get; private set; } = string.Empty;
+        public string image_url { get; private set; } = string.Empty;
+        public decimal current_price { get; private set; }
+        public decimal price_change_24h { get; private set; }
+        public decimal market_cap { get; private set; }
+        public DateTime last_price_update { get; private set; } = DateTime.UtcNow;
+        public DateTime created_at { get; private set; } = DateTime.UtcNow;
+        public DateTime updated_at { get; private set; } = DateTime.UtcNow;
 
         // Parameterless constructor required by EF Core for materialization.
-        public CryptoCurrency() { }
+        private CryptoCurrency() { }
 
         public CryptoCurrency(string symbol, string name, decimal current_price, decimal price_change_24h, decimal market_cap)
         {
+            // price_change_24h se excluye a propósito: una variación negativa es válida de negocio.
             Helpers.ValidateFields(
                 (nameof(symbol), symbol),
                 (nameof(name), name),
                 (nameof(current_price), current_price),
-                (nameof(price_change_24h), price_change_24h),
                 (nameof(market_cap), market_cap)
             );
 
@@ -33,6 +33,41 @@ namespace CryptoAppBackEnd.Domains.Entities.CryptoCurrencies
             this.current_price = current_price;
             this.price_change_24h = price_change_24h;
             this.market_cap = market_cap;
+            var now = DateTime.UtcNow;
+            this.last_price_update = now;
+            this.created_at = now;
+            this.updated_at = now;
+        }
+
+        public void SetImageUrl(string imageUrl)
+        {
+            this.image_url = imageUrl;
+            Touch();
+        }
+
+        public void UpdateDetails(string symbol, string name, string image_url, decimal current_price, decimal price_change_24h, decimal market_cap)
+        {
+            // price_change_24h se excluye a propósito: una variación negativa es válida de negocio.
+            Helpers.ValidateFields(
+                (nameof(symbol), symbol),
+                (nameof(name), name),
+                (nameof(current_price), current_price),
+                (nameof(market_cap), market_cap)
+            );
+
+            this.symbol = symbol;
+            this.name = name;
+            this.image_url = image_url;
+            this.current_price = current_price;
+            this.price_change_24h = price_change_24h;
+            this.market_cap = market_cap;
+            this.last_price_update = DateTime.UtcNow;
+            Touch();
+        }
+
+        private void Touch()
+        {
+            this.updated_at = DateTime.UtcNow;
         }
     }
 }

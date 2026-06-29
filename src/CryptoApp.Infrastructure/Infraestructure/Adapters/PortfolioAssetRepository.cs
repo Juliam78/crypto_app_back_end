@@ -26,8 +26,6 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
 
         public async Task CreatePortfolioAsset(PortfolioAsset portfolioAsset)
         {
-            portfolioAsset.created_at = DateTime.UtcNow;
-            portfolioAsset.updated_at = DateTime.UtcNow;
             await _context.PortfolioAssets.AddAsync(portfolioAsset);
             await _context.SaveChangesAsync();
         }
@@ -40,12 +38,12 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
                 return;
             }
 
-            existing.portfolio_id = portfolioAsset.portfolio_id;
-            existing.crypto_id = portfolioAsset.crypto_id;
-            existing.quantity = portfolioAsset.quantity;
-            existing.average_buy_price = portfolioAsset.average_buy_price;
-            existing.total_invested = portfolioAsset.total_invested;
-            existing.updated_at = DateTime.UtcNow;
+            existing.UpdateHolding(
+                portfolioAsset.portfolio_id,
+                portfolioAsset.crypto_id,
+                portfolioAsset.quantity,
+                portfolioAsset.average_buy_price,
+                portfolioAsset.total_invested);
 
             await _context.SaveChangesAsync();
         }

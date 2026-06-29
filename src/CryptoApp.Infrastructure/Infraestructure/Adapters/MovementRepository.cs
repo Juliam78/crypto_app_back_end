@@ -26,7 +26,6 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
 
         public async Task CreateMovementAsync(Movement movement)
         {
-            movement.created_at = DateTime.UtcNow;
             await _context.Movements.AddAsync(movement);
             await _context.SaveChangesAsync();
         }

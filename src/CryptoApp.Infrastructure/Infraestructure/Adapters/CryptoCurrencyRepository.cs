@@ -26,9 +26,6 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
 
         public async Task CreateCryptoCurrency(CryptoCurrency cryptoCurrency)
         {
-            cryptoCurrency.created_at = DateTime.UtcNow;
-            cryptoCurrency.updated_at = DateTime.UtcNow;
-            cryptoCurrency.last_price_update = DateTime.UtcNow;
             await _context.CryptoCurrencies.AddAsync(cryptoCurrency);
             await _context.SaveChangesAsync();
         }
@@ -41,14 +38,13 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
                 return;
             }
 
-            existing.symbol = cryptoCurrency.symbol;
-            existing.name = cryptoCurrency.name;
-            existing.image_url = cryptoCurrency.image_url;
-            existing.current_price = cryptoCurrency.current_price;
-            existing.price_change_24h = cryptoCurrency.price_change_24h;
-            existing.market_cap = cryptoCurrency.market_cap;
-            existing.last_price_update = DateTime.UtcNow;
-            existing.updated_at = DateTime.UtcNow;
+            existing.UpdateDetails(
+                cryptoCurrency.symbol,
+                cryptoCurrency.name,
+                cryptoCurrency.image_url,
+                cryptoCurrency.current_price,
+                cryptoCurrency.price_change_24h,
+                cryptoCurrency.market_cap);
 
             await _context.SaveChangesAsync();
         }
