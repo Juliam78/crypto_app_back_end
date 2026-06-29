@@ -99,11 +99,24 @@ namespace CryptoAppBackEnd.Application.UseCases
                 throw new InvalidOperationException("El usuario que intenta modificar no existe.");
             }
 
-            var roleChar = string.Equals(newRole, "admin", StringComparison.OrdinalIgnoreCase) ? 'A' : 'U';
+            // Acepta "admin" -> 'A', "employee" -> 'E', cualquier otro -> 'U'.
+            var roleChar = MapRole(newRole);
             person.ChangeRole(roleChar);
             await _personPort.UpdatePersonAsync(person.id, person);
 
             return person;
+        }
+
+        /// <summary>
+        /// Traduce el rol del contrato (string) al char del dominio.
+        /// "admin" -> 'A', "employee" -> 'E', cualquier otro -> 'U'.
+        /// Espejo de RoleMapping.ToDomain (la capa Application no referencia la capa Web).
+        /// </summary>
+        private static char MapRole(string? role)
+        {
+            if (string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase)) return 'A';
+            if (string.Equals(role, "employee", StringComparison.OrdinalIgnoreCase)) return 'E';
+            return 'U';
         }
     }
 }

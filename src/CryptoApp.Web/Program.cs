@@ -45,6 +45,7 @@ builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 builder.Services.AddScoped<IPortfolioAssetRepository, PortfolioAssetRepository>();
 builder.Services.AddScoped<IMovementRepository, MovementRepository>();
 builder.Services.AddScoped<IAppErrorRepository, AppErrorRepository>();
+builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 
 // Seguridad: hashing de contraseñas y emisión/validación de tokens de sesión.
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -64,6 +65,7 @@ builder.Services.AddScoped<MovementUseCase>();
 builder.Services.AddScoped<ErrorUseCase>();
 builder.Services.AddScoped<AuthUseCase>();
 builder.Services.AddScoped<MarketUseCase>();
+builder.Services.AddScoped<LessonUseCase>();
 
 var app = builder.Build();
 

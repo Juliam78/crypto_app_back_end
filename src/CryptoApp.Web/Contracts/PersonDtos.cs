@@ -4,17 +4,27 @@ namespace CryptoApp.Web.Contracts
 {
     /// <summary>
     /// Mapeo de rol de persona entre el dominio (char) y el contrato del frontend (string).
-    /// 'A' &lt;-&gt; "admin"; cualquier otro &lt;-&gt; "user".
+    /// 'A' &lt;-&gt; "admin"; 'E' &lt;-&gt; "employee"; cualquier otro &lt;-&gt; "user".
     /// </summary>
     public static class RoleMapping
     {
         public const char AdminChar = 'A';
+        public const char EmployeeChar = 'E';
         public const char UserChar = 'U';
 
-        public static string ToContract(char role) => role == AdminChar ? "admin" : "user";
+        public static string ToContract(char role) => role switch
+        {
+            AdminChar => "admin",
+            EmployeeChar => "employee",
+            _ => "user"
+        };
 
-        public static char ToDomain(string? role) =>
-            string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase) ? AdminChar : UserChar;
+        public static char ToDomain(string? role)
+        {
+            if (string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase)) return AdminChar;
+            if (string.Equals(role, "employee", StringComparison.OrdinalIgnoreCase)) return EmployeeChar;
+            return UserChar;
+        }
     }
 
     public record CreatePersonRequest(string Name, string Email, string Role);

@@ -46,7 +46,17 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
                 created_at = now,
                 updated_at = now
             };
-            context.Persons.AddRange(admin, jane, john);
+            var employee = new PersonDbModel
+            {
+                name = "Empleado",
+                email = "empleado@crypto.edu",
+                role = (char)TypePerson.Employee,
+                password_hash = passwordHasher.Hash("empleado123"),
+                status = true,
+                created_at = now,
+                updated_at = now
+            };
+            context.Persons.AddRange(admin, jane, john, employee);
 
             // Criptomonedas
             var btc = new CryptoCurrencyDbModel
@@ -191,6 +201,54 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
                 created_at = now
             };
             context.Movements.AddRange(janeBtcMov, janeEthMov, johnAdaMov);
+
+            // Módulo académico: lecciones ('L') y señales ('S'), publicadas, autoría de staff.
+            var introLesson = new LessonDbModel
+            {
+                kind = 'L',
+                title = "Introducción al trading de criptomonedas",
+                body = "Conceptos básicos: qué es una criptomoneda, cómo funciona el mercado, " +
+                       "y por qué la gestión del riesgo es lo más importante para un trader principiante.",
+                coin_id = null,
+                coin_symbol = null,
+                recommendation = null,
+                author_id = employee.id.ToString(),
+                author_name = employee.name,
+                published = true,
+                created_at = now,
+                updated_at = now
+            };
+            var dcaLesson = new LessonDbModel
+            {
+                kind = 'L',
+                title = "Estrategia de costo promedio (DCA)",
+                body = "El dollar-cost averaging consiste en invertir cantidades fijas de forma " +
+                       "periódica para suavizar el impacto de la volatilidad en el precio de entrada.",
+                coin_id = null,
+                coin_symbol = null,
+                recommendation = null,
+                author_id = admin.id.ToString(),
+                author_name = admin.name,
+                published = true,
+                created_at = now,
+                updated_at = now
+            };
+            var btcSignal = new LessonDbModel
+            {
+                kind = 'S',
+                title = "Señal: acumular Bitcoin",
+                body = "Soporte técnico sostenido y aumento de adopción institucional sugieren una " +
+                       "oportunidad de acumulación a mediano plazo. Mantén tamaño de posición prudente.",
+                coin_id = "bitcoin",
+                coin_symbol = "BTC",
+                recommendation = 'B',
+                author_id = employee.id.ToString(),
+                author_name = employee.name,
+                published = true,
+                created_at = now,
+                updated_at = now
+            };
+            context.Lessons.AddRange(introLesson, dcaLesson, btcSignal);
 
             context.SaveChanges();
         }
