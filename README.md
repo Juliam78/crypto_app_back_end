@@ -127,12 +127,12 @@ cd crypto_app_back_end
 # 3. Aplicar migraciones (crea el esquema en PostgreSQL)
 dotnet ef database update -p src/CryptoApp.Infrastructure -s src/CryptoApp.Web
 
-# 4. Ejecutar la API
-dotnet run --project src/CryptoApp.Web
+# 4. Ejecutar la API (perfil http -> puerto 5243)
+dotnet run --project src/CryptoApp.Web --launch-profile http
 ```
 
-La API y su documentación Swagger quedan disponibles en la URL indicada por la consola
-(por defecto `http://localhost:5000` / `https://localhost:5001`).
+La API y su documentación Swagger quedan disponibles en `http://localhost:5243`
+(la raíz `/` sirve Swagger UI en entorno de desarrollo).
 
 ---
 
