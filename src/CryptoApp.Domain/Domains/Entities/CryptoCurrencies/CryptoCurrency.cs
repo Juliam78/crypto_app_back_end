@@ -39,6 +39,36 @@ namespace CryptoAppBackEnd.Domains.Entities.CryptoCurrencies
             this.updated_at = now;
         }
 
+        /// <summary>
+        /// Rehidrata una CryptoCurrency desde almacenamiento (estado completo, sin validación).
+        /// </summary>
+        public static CryptoCurrency FromPersistence(
+            int id,
+            string symbol,
+            string name,
+            string image_url,
+            decimal current_price,
+            decimal price_change_24h,
+            decimal market_cap,
+            DateTime last_price_update,
+            DateTime created_at,
+            DateTime updated_at)
+        {
+            return new CryptoCurrency
+            {
+                id = id,
+                symbol = symbol,
+                name = name,
+                image_url = image_url,
+                current_price = current_price,
+                price_change_24h = price_change_24h,
+                market_cap = market_cap,
+                last_price_update = last_price_update,
+                created_at = created_at,
+                updated_at = updated_at
+            };
+        }
+
         public void SetImageUrl(string imageUrl)
         {
             this.image_url = imageUrl;

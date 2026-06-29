@@ -1,12 +1,12 @@
-using CryptoAppBackEnd.Domains.Entities.Persons;
+using CryptoAppBackEnd.Infraestructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CryptoAppBackEnd.Infraestructure.Persistence.Configurations
 {
-    public class PersonConfiguration : IEntityTypeConfiguration<Person>
+    public class PersonConfiguration : IEntityTypeConfiguration<PersonDbModel>
     {
-        public void Configure(EntityTypeBuilder<Person> builder)
+        public void Configure(EntityTypeBuilder<PersonDbModel> builder)
         {
             builder.ToTable("persons");
 

@@ -1,6 +1,7 @@
 using CryptoAppBackEnd.Application.Ports;
 using CryptoAppBackEnd.Domains.Entities.Portfolios;
 using CryptoAppBackEnd.Infraestructure.Persistence;
+using CryptoAppBackEnd.Infraestructure.Persistence.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace CryptoAppBackEnd.Infraestructure.Adapters
@@ -16,17 +17,19 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
 
         public async Task<IEnumerable<Portfolio>> GetPortfoliosAsync()
         {
-            return await _context.Portfolios.AsNoTracking().ToListAsync();
+            var rows = await _context.Portfolios.AsNoTracking().ToListAsync();
+            return rows.Select(PortfolioMapper.ToDomain).ToList();
         }
 
         public async Task<Portfolio> GetPortfolioAsync(int id)
         {
-            return (await _context.Portfolios.FindAsync(id))!;
+            var row = await _context.Portfolios.FindAsync(id);
+            return row is null ? null! : PortfolioMapper.ToDomain(row);
         }
 
         public async Task CreatePortfolioAsync(Portfolio portfolio)
         {
-            await _context.Portfolios.AddAsync(portfolio);
+            await _context.Portfolios.AddAsync(PortfolioMapper.ToDb(portfolio));
             await _context.SaveChangesAsync();
         }
 
@@ -38,7 +41,10 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
                 return;
             }
 
-            existing.UpdateDetails(portfolio.person_id, portfolio.name, portfolio.base_currency);
+            existing.person_id = portfolio.person_id;
+            existing.name = portfolio.name;
+            existing.base_currency = portfolio.base_currency;
+            existing.updated_at = portfolio.updated_at;
 
             await _context.SaveChangesAsync();
         }

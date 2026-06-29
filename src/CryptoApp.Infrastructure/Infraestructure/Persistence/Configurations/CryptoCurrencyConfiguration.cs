@@ -1,12 +1,12 @@
-using CryptoAppBackEnd.Domains.Entities.CryptoCurrencies;
+using CryptoAppBackEnd.Infraestructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CryptoAppBackEnd.Infraestructure.Persistence.Configurations
 {
-    public class CryptoCurrencyConfiguration : IEntityTypeConfiguration<CryptoCurrency>
+    public class CryptoCurrencyConfiguration : IEntityTypeConfiguration<CryptoCurrencyDbModel>
     {
-        public void Configure(EntityTypeBuilder<CryptoCurrency> builder)
+        public void Configure(EntityTypeBuilder<CryptoCurrencyDbModel> builder)
         {
             builder.ToTable("crypto_currencies");
 

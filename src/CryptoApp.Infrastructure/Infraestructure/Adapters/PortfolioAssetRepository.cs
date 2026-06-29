@@ -1,6 +1,7 @@
 using CryptoAppBackEnd.Application.Ports;
 using CryptoAppBackEnd.Domains.Entities.Portfolios;
 using CryptoAppBackEnd.Infraestructure.Persistence;
+using CryptoAppBackEnd.Infraestructure.Persistence.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace CryptoAppBackEnd.Infraestructure.Adapters
@@ -16,17 +17,19 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
 
         public async Task<IEnumerable<PortfolioAsset>> GetPortfolioAssetsAsync()
         {
-            return await _context.PortfolioAssets.AsNoTracking().ToListAsync();
+            var rows = await _context.PortfolioAssets.AsNoTracking().ToListAsync();
+            return rows.Select(PortfolioAssetMapper.ToDomain).ToList();
         }
 
         public async Task<PortfolioAsset> GetPortfolioAssetAsync(int id)
         {
-            return (await _context.PortfolioAssets.FindAsync(id))!;
+            var row = await _context.PortfolioAssets.FindAsync(id);
+            return row is null ? null! : PortfolioAssetMapper.ToDomain(row);
         }
 
         public async Task CreatePortfolioAsset(PortfolioAsset portfolioAsset)
         {
-            await _context.PortfolioAssets.AddAsync(portfolioAsset);
+            await _context.PortfolioAssets.AddAsync(PortfolioAssetMapper.ToDb(portfolioAsset));
             await _context.SaveChangesAsync();
         }
 
@@ -38,12 +41,12 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
                 return;
             }
 
-            existing.UpdateHolding(
-                portfolioAsset.portfolio_id,
-                portfolioAsset.crypto_id,
-                portfolioAsset.quantity,
-                portfolioAsset.average_buy_price,
-                portfolioAsset.total_invested);
+            existing.portfolio_id = portfolioAsset.portfolio_id;
+            existing.crypto_id = portfolioAsset.crypto_id;
+            existing.quantity = portfolioAsset.quantity;
+            existing.average_buy_price = portfolioAsset.average_buy_price;
+            existing.total_invested = portfolioAsset.total_invested;
+            existing.updated_at = portfolioAsset.updated_at;
 
             await _context.SaveChangesAsync();
         }

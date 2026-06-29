@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CryptoAppBackEnd.Infraestructure.Persistence.Migrations
+namespace CryptoApp.Infrastructure.Infraestructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CryptoAppBackEnd.Domains.Entities.CryptoCurrencies.CryptoCurrency", b =>
+            modelBuilder.Entity("CryptoAppBackEnd.Infraestructure.Persistence.Models.CryptoCurrencyDbModel", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -74,7 +74,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Migrations
                     b.ToTable("crypto_currencies", (string)null);
                 });
 
-            modelBuilder.Entity("CryptoAppBackEnd.Domains.Entities.Movements.Movement", b =>
+            modelBuilder.Entity("CryptoAppBackEnd.Infraestructure.Persistence.Models.MovementDbModel", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -124,7 +124,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Migrations
                     b.ToTable("movements", (string)null);
                 });
 
-            modelBuilder.Entity("CryptoAppBackEnd.Domains.Entities.Persons.Person", b =>
+            modelBuilder.Entity("CryptoAppBackEnd.Infraestructure.Persistence.Models.PersonDbModel", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -166,41 +166,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Migrations
                     b.ToTable("persons", (string)null);
                 });
 
-            modelBuilder.Entity("CryptoAppBackEnd.Domains.Entities.Portfolios.Portfolio", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<string>("base_currency")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
-                    b.Property<DateTime>("created_at")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<int>("person_id")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("updated_at")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("person_id");
-
-                    b.ToTable("portfolios", (string)null);
-                });
-
-            modelBuilder.Entity("CryptoAppBackEnd.Domains.Entities.Portfolios.PortfolioAsset", b =>
+            modelBuilder.Entity("CryptoAppBackEnd.Infraestructure.Persistence.Models.PortfolioAssetDbModel", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -241,47 +207,81 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Migrations
                     b.ToTable("portfolio_assets", (string)null);
                 });
 
-            modelBuilder.Entity("CryptoAppBackEnd.Domains.Entities.Movements.Movement", b =>
+            modelBuilder.Entity("CryptoAppBackEnd.Infraestructure.Persistence.Models.PortfolioDbModel", b =>
                 {
-                    b.HasOne("CryptoAppBackEnd.Domains.Entities.CryptoCurrencies.CryptoCurrency", null)
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+
+                    b.Property<string>("base_currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int>("person_id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("updated_at")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("person_id");
+
+                    b.ToTable("portfolios", (string)null);
+                });
+
+            modelBuilder.Entity("CryptoAppBackEnd.Infraestructure.Persistence.Models.MovementDbModel", b =>
+                {
+                    b.HasOne("CryptoAppBackEnd.Infraestructure.Persistence.Models.CryptoCurrencyDbModel", null)
                         .WithMany()
                         .HasForeignKey("crypto_id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CryptoAppBackEnd.Domains.Entities.Persons.Person", null)
+                    b.HasOne("CryptoAppBackEnd.Infraestructure.Persistence.Models.PersonDbModel", null)
                         .WithMany()
                         .HasForeignKey("person_id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CryptoAppBackEnd.Domains.Entities.Portfolios.Portfolio", null)
+                    b.HasOne("CryptoAppBackEnd.Infraestructure.Persistence.Models.PortfolioDbModel", null)
                         .WithMany()
                         .HasForeignKey("portfolio_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CryptoAppBackEnd.Domains.Entities.Portfolios.Portfolio", b =>
+            modelBuilder.Entity("CryptoAppBackEnd.Infraestructure.Persistence.Models.PortfolioAssetDbModel", b =>
                 {
-                    b.HasOne("CryptoAppBackEnd.Domains.Entities.Persons.Person", null)
-                        .WithMany()
-                        .HasForeignKey("person_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CryptoAppBackEnd.Domains.Entities.Portfolios.PortfolioAsset", b =>
-                {
-                    b.HasOne("CryptoAppBackEnd.Domains.Entities.CryptoCurrencies.CryptoCurrency", null)
+                    b.HasOne("CryptoAppBackEnd.Infraestructure.Persistence.Models.CryptoCurrencyDbModel", null)
                         .WithMany()
                         .HasForeignKey("crypto_id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CryptoAppBackEnd.Domains.Entities.Portfolios.Portfolio", null)
+                    b.HasOne("CryptoAppBackEnd.Infraestructure.Persistence.Models.PortfolioDbModel", null)
                         .WithMany()
                         .HasForeignKey("portfolio_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CryptoAppBackEnd.Infraestructure.Persistence.Models.PortfolioDbModel", b =>
+                {
+                    b.HasOne("CryptoAppBackEnd.Infraestructure.Persistence.Models.PersonDbModel", null)
+                        .WithMany()
+                        .HasForeignKey("person_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

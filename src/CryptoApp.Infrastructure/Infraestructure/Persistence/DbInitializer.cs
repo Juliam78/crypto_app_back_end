@@ -1,7 +1,5 @@
-using CryptoAppBackEnd.Domains.Entities.CryptoCurrencies;
-using CryptoAppBackEnd.Domains.Entities.Movements;
 using CryptoAppBackEnd.Domains.Entities.Persons;
-using CryptoAppBackEnd.Domains.Entities.Portfolios;
+using CryptoAppBackEnd.Infraestructure.Persistence.Models;
 
 namespace CryptoAppBackEnd.Infraestructure.Persistence
 {
@@ -14,54 +12,174 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
                 return;
             }
 
+            var now = DateTime.UtcNow;
+
             // Personas
-            var jane = new Person("Jane Smith", "jane.smith@example.com", (char)TypePerson.User);
-            jane.SetPasswordHash("hashed_password");
-            jane.Activate();
-            var carl = new Person("Carl Smith", "carl.smith@example.com", (char)TypePerson.Employee);
-            carl.SetPasswordHash("hashed_password");
-            carl.Activate();
-            var john = new Person("John Doe", "john.doe@example.com", (char)TypePerson.Admin);
-            john.SetPasswordHash("hashed_password");
-            john.Activate();
+            var jane = new PersonDbModel
+            {
+                name = "Jane Smith",
+                email = "jane.smith@example.com",
+                role = (char)TypePerson.User,
+                password_hash = "hashed_password",
+                status = true,
+                created_at = now,
+                updated_at = now
+            };
+            var carl = new PersonDbModel
+            {
+                name = "Carl Smith",
+                email = "carl.smith@example.com",
+                role = (char)TypePerson.Employee,
+                password_hash = "hashed_password",
+                status = true,
+                created_at = now,
+                updated_at = now
+            };
+            var john = new PersonDbModel
+            {
+                name = "John Doe",
+                email = "john.doe@example.com",
+                role = (char)TypePerson.Admin,
+                password_hash = "hashed_password",
+                status = true,
+                created_at = now,
+                updated_at = now
+            };
             context.Persons.AddRange(john, jane, carl);
 
             // Criptomonedas
-            var btc = new CryptoCurrency("BTC", "Bitcoin", 50000m, 2.35m, 980000000000m);
-            btc.SetImageUrl("https://example.com/btc.png");
-            var eth = new CryptoCurrency("ETH", "Ethereum", 4000m, 1.15m, 480000000000m);
-            eth.SetImageUrl("https://example.com/eth.png");
-            var ada = new CryptoCurrency("ADA", "Cardano", 2.5m, -0.45m, 85000000000m);
-            ada.SetImageUrl("https://example.com/ada.png");
+            var btc = new CryptoCurrencyDbModel
+            {
+                symbol = "BTC",
+                name = "Bitcoin",
+                image_url = "https://example.com/btc.png",
+                current_price = 50000m,
+                price_change_24h = 2.35m,
+                market_cap = 980000000000m,
+                last_price_update = now,
+                created_at = now,
+                updated_at = now
+            };
+            var eth = new CryptoCurrencyDbModel
+            {
+                symbol = "ETH",
+                name = "Ethereum",
+                image_url = "https://example.com/eth.png",
+                current_price = 4000m,
+                price_change_24h = 1.15m,
+                market_cap = 480000000000m,
+                last_price_update = now,
+                created_at = now,
+                updated_at = now
+            };
+            var ada = new CryptoCurrencyDbModel
+            {
+                symbol = "ADA",
+                name = "Cardano",
+                image_url = "https://example.com/ada.png",
+                current_price = 2.5m,
+                price_change_24h = -0.45m,
+                market_cap = 85000000000m,
+                last_price_update = now,
+                created_at = now,
+                updated_at = now
+            };
             context.CryptoCurrencies.AddRange(btc, eth, ada);
 
+            // Persiste personas y criptomonedas para obtener sus ids generados.
             context.SaveChanges();
 
             // Portafolios (dependen de las personas ya persistidas)
-            var janePortfolio = new Portfolio("Jane - largo plazo", "USD");
-            janePortfolio.AssignToPerson(jane.id);
-            var carlPortfolio = new Portfolio("Carl - trading", "USD");
-            carlPortfolio.AssignToPerson(carl.id);
+            var janePortfolio = new PortfolioDbModel
+            {
+                person_id = jane.id,
+                name = "Jane - largo plazo",
+                base_currency = "USD",
+                created_at = now,
+                updated_at = now
+            };
+            var carlPortfolio = new PortfolioDbModel
+            {
+                person_id = carl.id,
+                name = "Carl - trading",
+                base_currency = "USD",
+                created_at = now,
+                updated_at = now
+            };
             context.Portfolios.AddRange(janePortfolio, carlPortfolio);
 
             context.SaveChanges();
 
             // Activos del portafolio
-            var janeBtc = new PortfolioAsset(0.35m, 48000m, 16800m);
-            janeBtc.AssignTo(janePortfolio.id, btc.id);
-            var janeEth = new PortfolioAsset(2.25m, 3900m, 8775m);
-            janeEth.AssignTo(janePortfolio.id, eth.id);
-            var carlAda = new PortfolioAsset(1500m, 2.1m, 3150m);
-            carlAda.AssignTo(carlPortfolio.id, ada.id);
+            var janeBtc = new PortfolioAssetDbModel
+            {
+                portfolio_id = janePortfolio.id,
+                crypto_id = btc.id,
+                quantity = 0.35m,
+                average_buy_price = 48000m,
+                total_invested = 16800m,
+                created_at = now,
+                updated_at = now
+            };
+            var janeEth = new PortfolioAssetDbModel
+            {
+                portfolio_id = janePortfolio.id,
+                crypto_id = eth.id,
+                quantity = 2.25m,
+                average_buy_price = 3900m,
+                total_invested = 8775m,
+                created_at = now,
+                updated_at = now
+            };
+            var carlAda = new PortfolioAssetDbModel
+            {
+                portfolio_id = carlPortfolio.id,
+                crypto_id = ada.id,
+                quantity = 1500m,
+                average_buy_price = 2.1m,
+                total_invested = 3150m,
+                created_at = now,
+                updated_at = now
+            };
             context.PortfolioAssets.AddRange(janeBtc, janeEth, carlAda);
 
             // Movimientos
-            var janeBtcMov = new Movement('B', 0.35m, 48000m, 16800m, 0m);
-            janeBtcMov.AssignContext(jane.id, janePortfolio.id, btc.id);
-            var janeEthMov = new Movement('B', 2.25m, 3900m, 8775m, 0m);
-            janeEthMov.AssignContext(jane.id, janePortfolio.id, eth.id);
-            var carlAdaMov = new Movement('B', 1500m, 2.1m, 3150m, 0m);
-            carlAdaMov.AssignContext(carl.id, carlPortfolio.id, ada.id);
+            var janeBtcMov = new MovementDbModel
+            {
+                person_id = jane.id,
+                portfolio_id = janePortfolio.id,
+                crypto_id = btc.id,
+                type = 'B',
+                quantity = 0.35m,
+                price = 48000m,
+                total = 16800m,
+                realized_pnl = 0m,
+                created_at = now
+            };
+            var janeEthMov = new MovementDbModel
+            {
+                person_id = jane.id,
+                portfolio_id = janePortfolio.id,
+                crypto_id = eth.id,
+                type = 'B',
+                quantity = 2.25m,
+                price = 3900m,
+                total = 8775m,
+                realized_pnl = 0m,
+                created_at = now
+            };
+            var carlAdaMov = new MovementDbModel
+            {
+                person_id = carl.id,
+                portfolio_id = carlPortfolio.id,
+                crypto_id = ada.id,
+                type = 'B',
+                quantity = 1500m,
+                price = 2.1m,
+                total = 3150m,
+                realized_pnl = 0m,
+                created_at = now
+            };
             context.Movements.AddRange(janeBtcMov, janeEthMov, carlAdaMov);
 
             context.SaveChanges();

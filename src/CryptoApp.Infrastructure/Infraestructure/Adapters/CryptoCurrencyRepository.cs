@@ -1,6 +1,7 @@
 using CryptoAppBackEnd.Application.Ports;
 using CryptoAppBackEnd.Domains.Entities.CryptoCurrencies;
 using CryptoAppBackEnd.Infraestructure.Persistence;
+using CryptoAppBackEnd.Infraestructure.Persistence.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace CryptoAppBackEnd.Infraestructure.Adapters
@@ -16,17 +17,19 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
 
         public async Task<IEnumerable<CryptoCurrency>> GetCryptoCurrenciesAsync()
         {
-            return await _context.CryptoCurrencies.AsNoTracking().ToListAsync();
+            var rows = await _context.CryptoCurrencies.AsNoTracking().ToListAsync();
+            return rows.Select(CryptoCurrencyMapper.ToDomain).ToList();
         }
 
         public async Task<CryptoCurrency> GetCryptoCurrencyByIdAsync(int id)
         {
-            return (await _context.CryptoCurrencies.FindAsync(id))!;
+            var row = await _context.CryptoCurrencies.FindAsync(id);
+            return row is null ? null! : CryptoCurrencyMapper.ToDomain(row);
         }
 
         public async Task CreateCryptoCurrency(CryptoCurrency cryptoCurrency)
         {
-            await _context.CryptoCurrencies.AddAsync(cryptoCurrency);
+            await _context.CryptoCurrencies.AddAsync(CryptoCurrencyMapper.ToDb(cryptoCurrency));
             await _context.SaveChangesAsync();
         }
 
@@ -38,13 +41,14 @@ namespace CryptoAppBackEnd.Infraestructure.Adapters
                 return;
             }
 
-            existing.UpdateDetails(
-                cryptoCurrency.symbol,
-                cryptoCurrency.name,
-                cryptoCurrency.image_url,
-                cryptoCurrency.current_price,
-                cryptoCurrency.price_change_24h,
-                cryptoCurrency.market_cap);
+            existing.symbol = cryptoCurrency.symbol;
+            existing.name = cryptoCurrency.name;
+            existing.image_url = cryptoCurrency.image_url;
+            existing.current_price = cryptoCurrency.current_price;
+            existing.price_change_24h = cryptoCurrency.price_change_24h;
+            existing.market_cap = cryptoCurrency.market_cap;
+            existing.last_price_update = cryptoCurrency.last_price_update;
+            existing.updated_at = cryptoCurrency.updated_at;
 
             await _context.SaveChangesAsync();
         }

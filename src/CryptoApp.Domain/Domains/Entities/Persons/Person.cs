@@ -31,6 +31,33 @@ namespace CryptoAppBackEnd.Domains.Entities.Persons
             this.updated_at = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Rehidrata una Person desde almacenamiento. Único punto autorizado para
+        /// reconstituir el estado completo (incluidos id y timestamps) sin validación de negocio.
+        /// </summary>
+        public static Person FromPersistence(
+            int id,
+            string name,
+            string email,
+            string password_hash,
+            char role,
+            bool status,
+            DateTime created_at,
+            DateTime updated_at)
+        {
+            return new Person
+            {
+                id = id,
+                name = name,
+                email = email,
+                password_hash = password_hash,
+                role = role,
+                status = status,
+                created_at = created_at,
+                updated_at = updated_at
+            };
+        }
+
         public void UpdateProfile(string name, string email, char role, bool status)
         {
             Helpers.ValidateFields(

@@ -31,6 +31,32 @@ namespace CryptoAppBackEnd.Domains.Entities.Portfolios
             this.updated_at = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Rehidrata un PortfolioAsset desde almacenamiento (estado completo, sin validación).
+        /// </summary>
+        public static PortfolioAsset FromPersistence(
+            int id,
+            int portfolio_id,
+            int crypto_id,
+            decimal quantity,
+            decimal average_buy_price,
+            decimal total_invested,
+            DateTime created_at,
+            DateTime updated_at)
+        {
+            return new PortfolioAsset
+            {
+                id = id,
+                portfolio_id = portfolio_id,
+                crypto_id = crypto_id,
+                quantity = quantity,
+                average_buy_price = average_buy_price,
+                total_invested = total_invested,
+                created_at = created_at,
+                updated_at = updated_at
+            };
+        }
+
         public void AssignTo(int portfolioId, int cryptoId)
         {
             Helpers.ValidateFields(

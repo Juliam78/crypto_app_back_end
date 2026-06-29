@@ -36,6 +36,36 @@ namespace CryptoAppBackEnd.Domains.Entities.Movements
             this.created_at = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Rehidrata un Movement desde almacenamiento (estado completo, sin validación).
+        /// </summary>
+        public static Movement FromPersistence(
+            int id,
+            int person_id,
+            int portfolio_id,
+            int crypto_id,
+            char type,
+            decimal quantity,
+            decimal price,
+            decimal total,
+            decimal realized_pnl,
+            DateTime created_at)
+        {
+            return new Movement
+            {
+                id = id,
+                person_id = person_id,
+                portfolio_id = portfolio_id,
+                crypto_id = crypto_id,
+                type = type,
+                quantity = quantity,
+                price = price,
+                total = total,
+                realized_pnl = realized_pnl,
+                created_at = created_at
+            };
+        }
+
         public void AssignContext(int personId, int portfolioId, int cryptoId)
         {
             Helpers.ValidateFields(

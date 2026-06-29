@@ -1,15 +1,12 @@
-using CryptoAppBackEnd.Domains.Entities.CryptoCurrencies;
-using CryptoAppBackEnd.Domains.Entities.Movements;
-using CryptoAppBackEnd.Domains.Entities.Persons;
-using CryptoAppBackEnd.Domains.Entities.Portfolios;
+using CryptoAppBackEnd.Infraestructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CryptoAppBackEnd.Infraestructure.Persistence.Configurations
 {
-    public class MovementConfiguration : IEntityTypeConfiguration<Movement>
+    public class MovementConfiguration : IEntityTypeConfiguration<MovementDbModel>
     {
-        public void Configure(EntityTypeBuilder<Movement> builder)
+        public void Configure(EntityTypeBuilder<MovementDbModel> builder)
         {
             builder.ToTable("movements");
 
@@ -25,17 +22,17 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Configurations
             builder.Property(m => m.realized_pnl).HasPrecision(18, 2);
             builder.Property(m => m.created_at).IsRequired();
 
-            builder.HasOne<Person>()
+            builder.HasOne<PersonDbModel>()
                 .WithMany()
                 .HasForeignKey(m => m.person_id)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne<Portfolio>()
+            builder.HasOne<PortfolioDbModel>()
                 .WithMany()
                 .HasForeignKey(m => m.portfolio_id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne<CryptoCurrency>()
+            builder.HasOne<CryptoCurrencyDbModel>()
                 .WithMany()
                 .HasForeignKey(m => m.crypto_id)
                 .OnDelete(DeleteBehavior.Restrict);

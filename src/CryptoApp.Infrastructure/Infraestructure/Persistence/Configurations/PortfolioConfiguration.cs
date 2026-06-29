@@ -1,13 +1,12 @@
-using CryptoAppBackEnd.Domains.Entities.Persons;
-using CryptoAppBackEnd.Domains.Entities.Portfolios;
+using CryptoAppBackEnd.Infraestructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CryptoAppBackEnd.Infraestructure.Persistence.Configurations
 {
-    public class PortfolioConfiguration : IEntityTypeConfiguration<Portfolio>
+    public class PortfolioConfiguration : IEntityTypeConfiguration<PortfolioDbModel>
     {
-        public void Configure(EntityTypeBuilder<Portfolio> builder)
+        public void Configure(EntityTypeBuilder<PortfolioDbModel> builder)
         {
             builder.ToTable("portfolios");
 
@@ -19,7 +18,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence.Configurations
             builder.Property(p => p.created_at).IsRequired();
             builder.Property(p => p.updated_at).IsRequired();
 
-            builder.HasOne<Person>()
+            builder.HasOne<PersonDbModel>()
                 .WithMany()
                 .HasForeignKey(p => p.person_id)
                 .OnDelete(DeleteBehavior.Cascade);

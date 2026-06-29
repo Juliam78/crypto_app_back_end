@@ -1,7 +1,4 @@
-using CryptoAppBackEnd.Domains.Entities.CryptoCurrencies;
-using CryptoAppBackEnd.Domains.Entities.Movements;
-using CryptoAppBackEnd.Domains.Entities.Persons;
-using CryptoAppBackEnd.Domains.Entities.Portfolios;
+using CryptoAppBackEnd.Infraestructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CryptoAppBackEnd.Infraestructure.Persistence
@@ -13,11 +10,11 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
         {
         }
 
-        public DbSet<Person> Persons => Set<Person>();
-        public DbSet<CryptoCurrency> CryptoCurrencies => Set<CryptoCurrency>();
-        public DbSet<Portfolio> Portfolios => Set<Portfolio>();
-        public DbSet<PortfolioAsset> PortfolioAssets => Set<PortfolioAsset>();
-        public DbSet<Movement> Movements => Set<Movement>();
+        public DbSet<PersonDbModel> Persons => Set<PersonDbModel>();
+        public DbSet<CryptoCurrencyDbModel> CryptoCurrencies => Set<CryptoCurrencyDbModel>();
+        public DbSet<PortfolioDbModel> Portfolios => Set<PortfolioDbModel>();
+        public DbSet<PortfolioAssetDbModel> PortfolioAssets => Set<PortfolioAssetDbModel>();
+        public DbSet<MovementDbModel> Movements => Set<MovementDbModel>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
