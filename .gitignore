@@ -1,0 +1,21 @@
+# Compilación .NET
+bin/
+obj/
+out/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+
+# Archivos locales / secretos
+appsettings.Development.json
+appsettings.*.local.json
+*.env
+
+# Avatares subidos en tiempo de ejecución
+wwwroot/avatars/*
+!wwwroot/avatars/.gitkeep
