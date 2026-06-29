@@ -11,6 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// CORS abierto (contexto académico): permite cualquier origen, cabecera y método.
+const string CorsPolicy = "AllowAll";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicy, policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -62,6 +73,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(CorsPolicy);
 
 app.UseAuthorization();
 
