@@ -19,3 +19,6 @@ appsettings.*.local.json
 # Avatares subidos en tiempo de ejecución
 wwwroot/avatars/*
 !wwwroot/avatars/.gitkeep
+
+# Notas del presentador (no van en el repo)
+PITCH.md
