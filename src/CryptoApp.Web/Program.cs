@@ -1,6 +1,7 @@
 using CryptoAppBackEnd.Application.Ports;
 using CryptoAppBackEnd.Application.UseCases;
 using CryptoAppBackEnd.Infraestructure.Adapters;
+using CryptoAppBackEnd.Infraestructure.Assistant;
 using CryptoAppBackEnd.Infraestructure.Market;
 using CryptoAppBackEnd.Infraestructure.Persistence;
 using CryptoAppBackEnd.Infraestructure.Security;
@@ -56,6 +57,10 @@ builder.Services.AddHttpClient<IMarketDataProvider, CoinGeckoClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(30));
 builder.Services.AddScoped<IMarketCache, MarketCacheRepository>();
 
+// Mascota IA: adaptador a un endpoint compatible con OpenAI (Ollama local por defecto).
+builder.Services.AddHttpClient<IAssistantProvider, OpenAiCompatibleAssistantClient>(client =>
+    client.Timeout = TimeSpan.FromSeconds(60));
+
 // Casos de uso (capa de aplicación)
 builder.Services.AddScoped<PersonUseCase>();
 builder.Services.AddScoped<CryptoCurrencyUseCase>();
@@ -66,6 +71,7 @@ builder.Services.AddScoped<ErrorUseCase>();
 builder.Services.AddScoped<AuthUseCase>();
 builder.Services.AddScoped<MarketUseCase>();
 builder.Services.AddScoped<LessonUseCase>();
+builder.Services.AddScoped<AssistantUseCase>();
 
 var app = builder.Build();
 
