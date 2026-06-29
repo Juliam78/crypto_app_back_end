@@ -240,6 +240,11 @@ namespace CryptoAppBackEnd.Application.UseCases
                     {
                         sb.AppendLine($"  - [LECCIÓN] {s.title}");
                     }
+                    // Incluimos el contenido (truncado) para que el asistente pueda explicar la lección/señal.
+                    if (!string.IsNullOrWhiteSpace(s.body))
+                    {
+                        sb.AppendLine($"      Contenido: {Truncate(s.body, 800)}");
+                    }
                 }
             }
 
@@ -262,6 +267,12 @@ namespace CryptoAppBackEnd.Application.UseCases
         }
 
         // --- Helpers de formato --------------------------------------------------------------------
+
+        private static string Truncate(string text, int max)
+        {
+            var clean = text.Replace("\r", " ").Replace("\n", " ").Trim();
+            return clean.Length <= max ? clean : clean.Substring(0, max) + "…";
+        }
 
         private static string FormatUsd(decimal value) =>
             "$" + value.ToString("0.########", CultureInfo.InvariantCulture);
