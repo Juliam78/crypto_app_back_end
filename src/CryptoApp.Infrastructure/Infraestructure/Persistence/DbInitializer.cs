@@ -1,3 +1,4 @@
+using CryptoAppBackEnd.Application.Ports;
 using CryptoAppBackEnd.Domains.Entities.Persons;
 using CryptoAppBackEnd.Infraestructure.Persistence.Models;
 
@@ -5,7 +6,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
 {
     public static class DbInitializer
     {
-        public static void Seed(AppDbContext context)
+        public static void Seed(AppDbContext context, IPasswordHasher passwordHasher)
         {
             if (context.Persons.Any())
             {
@@ -14,23 +15,23 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
 
             var now = DateTime.UtcNow;
 
-            // Personas
+            // Personas semilla (contraseñas hasheadas con el mismo algoritmo que el login).
+            var admin = new PersonDbModel
+            {
+                name = "Admin",
+                email = "admin@crypto.edu",
+                role = (char)TypePerson.Admin,
+                password_hash = passwordHasher.Hash("admin123"),
+                status = true,
+                created_at = now,
+                updated_at = now
+            };
             var jane = new PersonDbModel
             {
                 name = "Jane Smith",
                 email = "jane.smith@example.com",
                 role = (char)TypePerson.User,
-                password_hash = "hashed_password",
-                status = true,
-                created_at = now,
-                updated_at = now
-            };
-            var carl = new PersonDbModel
-            {
-                name = "Carl Smith",
-                email = "carl.smith@example.com",
-                role = (char)TypePerson.Employee,
-                password_hash = "hashed_password",
+                password_hash = passwordHasher.Hash("secret123"),
                 status = true,
                 created_at = now,
                 updated_at = now
@@ -39,13 +40,13 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
             {
                 name = "John Doe",
                 email = "john.doe@example.com",
-                role = (char)TypePerson.Admin,
-                password_hash = "hashed_password",
+                role = (char)TypePerson.User,
+                password_hash = passwordHasher.Hash("secret123"),
                 status = true,
                 created_at = now,
                 updated_at = now
             };
-            context.Persons.AddRange(john, jane, carl);
+            context.Persons.AddRange(admin, jane, john);
 
             // Criptomonedas
             var btc = new CryptoCurrencyDbModel
@@ -98,15 +99,15 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
                 created_at = now,
                 updated_at = now
             };
-            var carlPortfolio = new PortfolioDbModel
+            var johnPortfolio = new PortfolioDbModel
             {
-                person_id = carl.id,
-                name = "Carl - trading",
+                person_id = john.id,
+                name = "John - trading",
                 base_currency = "USD",
                 created_at = now,
                 updated_at = now
             };
-            context.Portfolios.AddRange(janePortfolio, carlPortfolio);
+            context.Portfolios.AddRange(janePortfolio, johnPortfolio);
 
             context.SaveChanges();
 
@@ -131,9 +132,9 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
                 created_at = now,
                 updated_at = now
             };
-            var carlAda = new PortfolioAssetDbModel
+            var johnAda = new PortfolioAssetDbModel
             {
-                portfolio_id = carlPortfolio.id,
+                portfolio_id = johnPortfolio.id,
                 crypto_id = ada.id,
                 quantity = 1500m,
                 average_buy_price = 2.1m,
@@ -141,7 +142,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
                 created_at = now,
                 updated_at = now
             };
-            context.PortfolioAssets.AddRange(janeBtc, janeEth, carlAda);
+            context.PortfolioAssets.AddRange(janeBtc, janeEth, johnAda);
 
             // Movimientos (desnormalizados: sin FKs; guardan ids/nombres como datos planos).
             var janeBtcMov = new MovementDbModel
@@ -174,10 +175,10 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
                 realized_pnl = 0m,
                 created_at = now
             };
-            var carlAdaMov = new MovementDbModel
+            var johnAdaMov = new MovementDbModel
             {
-                user_id = carl.id.ToString(),
-                user_name = carl.name,
+                user_id = john.id.ToString(),
+                user_name = john.name,
                 coin_id = "cardano",
                 coin_name = ada.name,
                 coin_symbol = ada.symbol,
@@ -189,7 +190,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
                 realized_pnl = 0m,
                 created_at = now
             };
-            context.Movements.AddRange(janeBtcMov, janeEthMov, carlAdaMov);
+            context.Movements.AddRange(janeBtcMov, janeEthMov, johnAdaMov);
 
             context.SaveChanges();
         }
