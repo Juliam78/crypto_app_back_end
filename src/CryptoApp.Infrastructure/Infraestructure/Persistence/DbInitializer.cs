@@ -237,8 +237,9 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
             {
                 kind = 'S',
                 title = "Señal: acumular Bitcoin",
-                body = "Soporte técnico sostenido y aumento de adopción institucional sugieren una " +
-                       "oportunidad de acumulación a mediano plazo. Mantén tamaño de posición prudente.",
+                body = "Bitcoin ha mantenido su precio estable y cada vez más empresas grandes lo están " +
+                       "comprando. Por eso el equipo sugiere comprarlo poco a poco (acumular), pensando en " +
+                       "el mediano plazo. Consejo: invierte solo una parte pequeña de tu dinero para no arriesgar de más.",
                 coin_id = "bitcoin",
                 coin_symbol = "BTC",
                 recommendation = 'B',
