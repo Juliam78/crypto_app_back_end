@@ -18,6 +18,7 @@ namespace CryptoAppBackEnd.Infraestructure.Persistence
         public DbSet<CryptoPriceDbModel> CryptoPrices => Set<CryptoPriceDbModel>();
         public DbSet<AppErrorDbModel> AppErrors => Set<AppErrorDbModel>();
         public DbSet<LessonDbModel> Lessons => Set<LessonDbModel>();
+        public DbSet<AvatarDbModel> Avatars => Set<AvatarDbModel>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

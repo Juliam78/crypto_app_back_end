@@ -13,9 +13,12 @@ namespace CryptoApp.Web.Controllers
     [Route("api/users")]
     public class UsersController : ControllerBase
     {
+        private const long MaxAvatarBytes = 5 * 1024 * 1024; // 5 MB
+
         private readonly AuthUseCase _authUseCase;
         private readonly PersonUseCase _personUseCase;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IAvatarStore _avatarStore;
         private readonly IWebHostEnvironment _env;
         private readonly IConfiguration _config;
 
@@ -23,12 +26,14 @@ namespace CryptoApp.Web.Controllers
             AuthUseCase authUseCase,
             PersonUseCase personUseCase,
             IPasswordHasher passwordHasher,
+            IAvatarStore avatarStore,
             IWebHostEnvironment env,
             IConfiguration config)
         {
             _authUseCase = authUseCase;
             _personUseCase = personUseCase;
             _passwordHasher = passwordHasher;
+            _avatarStore = avatarStore;
             _env = env;
             _config = config;
         }
@@ -107,13 +112,25 @@ namespace CryptoApp.Web.Controllers
         }
 
         // POST /api/users/{id}/avatar  (multipart/form-data, campo "file")
-        // Guarda el archivo en wwwroot/avatars, actualiza avatar_url y devuelve { url }.
+        // Guarda la imagen como binario en BD (tabla avatars), actualiza avatar_url apuntando al
+        // endpoint GET y devuelve { url }. La URL lleva ?v= para romper la caché del navegador al
+        // re-subir. Ya NO se escribe en wwwroot/avatars.
         [HttpPost("{id:int}/avatar")]
-        public async Task<IActionResult> UploadAvatar(int id, IFormFile? file)
+        public async Task<IActionResult> UploadAvatar(int id, IFormFile? file, CancellationToken ct)
         {
             if (file is null || file.Length == 0)
             {
                 return BadRequest(new { message = "Se esperaba un archivo en el campo 'file'." });
+            }
+
+            if (file.Length > MaxAvatarBytes)
+            {
+                return BadRequest(new { message = "La imagen supera el tamaño máximo de 5 MB." });
+            }
+
+            if (!IsImage(file))
+            {
+                return BadRequest(new { message = "El archivo debe ser una imagen (jpg, png, gif o webp)." });
             }
 
             var person = await _personUseCase.GetPersonById(id);
@@ -122,26 +139,51 @@ namespace CryptoApp.Web.Controllers
                 return NotFound(new { message = "El usuario no existe." });
             }
 
-            var ext = Path.GetExtension(file.FileName);
-            if (string.IsNullOrWhiteSpace(ext)) ext = ".png";
-            var fileName = $"{Guid.NewGuid()}{ext}";
-
-            var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
-            var folder = Path.Combine(webRoot, "avatars");
-            Directory.CreateDirectory(folder);
-
-            await using (var stream = System.IO.File.Create(Path.Combine(folder, fileName)))
+            byte[] bytes;
+            using (var ms = new MemoryStream())
             {
-                await file.CopyToAsync(stream);
+                await file.CopyToAsync(ms, ct);
+                bytes = ms.ToArray();
             }
 
-            var publicBase = _config["PublicBaseUrl"] ?? "http://localhost:5000";
-            var url = $"{publicBase.TrimEnd('/')}/avatars/{fileName}";
+            var contentType = string.IsNullOrWhiteSpace(file.ContentType) ? "image/png" : file.ContentType;
+            await _avatarStore.SaveAsync(id, bytes, contentType, ct);
+
+            var publicBase = (_config["PublicBaseUrl"] ?? "http://localhost:5000").TrimEnd('/');
+            var url = $"{publicBase}/api/users/{id}/avatar?v={DateTime.UtcNow.Ticks}";
 
             person.SetAvatarUrl(url);
             await _personUseCase.UpdatePerson(person);
 
             return Ok(new { url });
+        }
+
+        // GET /api/users/{id}/avatar  -> sirve la imagen del avatar desde BD.
+        // PÚBLICO (sin token): lo consumen etiquetas <img>, que no envían Authorization.
+        // El query ?v= (cache-bust) se acepta y se descarta.
+        [HttpGet("{id:int}/avatar")]
+        public async Task<IActionResult> GetAvatar(int id, CancellationToken ct)
+        {
+            var avatar = await _avatarStore.GetAsync(id, ct);
+            if (avatar is null)
+            {
+                return NotFound();
+            }
+
+            return File(avatar.Data, avatar.ContentType);
+        }
+
+        // Valida que el archivo subido sea una imagen, por content type o por extensión.
+        private static bool IsImage(IFormFile file)
+        {
+            if (!string.IsNullOrWhiteSpace(file.ContentType) &&
+                file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var ext = Path.GetExtension(file.FileName);
+            return ext.ToLowerInvariant() is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp";
         }
     }
 }
